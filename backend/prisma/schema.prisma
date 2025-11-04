@@ -5,11 +5,125 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+// Визначення ENUM (Переліків)
+enum UserRole {
+  ADMIN
+  MANAGER
+  WORKER
+}
+
+enum SensorStatus {
+  ACTIVE
+  INACTIVE
+  MAINTENANCE
+}
+
+enum AlertStatus {
+  NEW
+  ACKNOWLEDGED
+  RESOLVED
+}
+
+// Моделі (Таблиці)
+
+model Store {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  // Зв'язки (1 магазин має багато...)
+  users   User[]
+  zones   Zone[]
+  sensors Sensor[]
+  alerts  Alert[]
+}
+
+model User {
+  id            Int     @id @default(autoincrement())
+  email         String  @unique
+  password_hash String
+  first_name    String
+  last_name     String
+  patronymic    String? // '?' означає Nullable
+
+  role     UserRole @default(WORKER)
+  store    Store    @relation(fields: [store_id], references: [id])
+  store_id Int
+
+  // Зв'язки
+  assignedSensors SensorAssignment[]
+  resolvedAlerts  Alert[]
+}
+
+model Zone {
+  id       Int    @id @default(autoincrement())
+  name     String
+  min_temp Float
+  max_temp Float
+
+  store    Store @relation(fields: [store_id], references: [id])
+  store_id Int
+
+  // Зв'язки
+  sensors Sensor[]
+
+  // Унікальний індекс: назва зони має бути унікальною в межах одного магазину
+  @@unique([store_id, name])
+}
+
+model Sensor {
+  id       Int          @id @default(autoincrement())
+  name     String
+  location String?
+  status   SensorStatus @default(ACTIVE)
+
+  zone     Zone  @relation(fields: [zone_id], references: [id])
+  zone_id  Int
+  store    Store @relation(fields: [store_id], references: [id])
+  store_id Int
+
+  // Зв'язки
+  readings   SensorReading[]
+  alerts     Alert[]
+  assignedTo SensorAssignment[]
+}
+
+model SensorReading {
+  id          Int      @id @default(autoincrement())
+  temperature Float
+  timestamp   DateTime @default(now())
+
+  sensor    Sensor @relation(fields: [sensor_id], references: [id])
+  sensor_id Int
+}
+
+model Alert {
+  id         Int         @id @default(autoincrement())
+  status     AlertStatus @default(NEW)
+  created_at DateTime    @default(now())
+
+  sensor    Sensor @relation(fields: [sensor_id], references: [id])
+  sensor_id Int
+  store     Store  @relation(fields: [store_id], references: [id])
+  store_id  Int
+
+  resolvedByUser      User? @relation(fields: [resolved_by_user_id], references: [id])
+  resolved_by_user_id Int? // Nullable
+}
+
+model SensorAssignment {
+  user      User   @relation(fields: [user_id], references: [id])
+  user_id   Int
+  sensor    Sensor @relation(fields: [sensor_id], references: [id])
+  sensor_id Int
+
+  // Складений Первинний Ключ (Composite Primary Key)
+  @@id([user_id, sensor_id])
 }
