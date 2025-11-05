@@ -2,8 +2,9 @@ import type { Request, Response, NextFunction } from "express";
 import * as userService from "../services/user.service.js";
 import type { CreateUserDto } from "../dtos/auth.dto.js";
 import { updateUserSchema, resetPasswordSchema } from "../dtos/auth.dto.js";
+import { z } from "zod";
 
-// Створення користувача Адміном
+// --- CREATE (Admin) ---
 export const create = async (
   req: Request,
   res: Response,
@@ -21,7 +22,7 @@ export const create = async (
   }
 };
 
-// Отримання списку користувачів
+// --- READ ALL (Admin) ---
 export const getAll = async (
   req: Request,
   res: Response,
@@ -38,6 +39,7 @@ export const getAll = async (
   }
 };
 
+// --- READ (Get by ID) ---
 export const getById = async (
   req: Request,
   res: Response,
@@ -59,6 +61,7 @@ export const getById = async (
   }
 };
 
+// --- UPDATE (Profile) ---
 export const update = async (
   req: Request,
   res: Response,
@@ -69,16 +72,14 @@ export const update = async (
     // @ts-ignore
     const storeId = req.user!.store_id;
 
-    // Валідація Zod
-    const data = updateUserSchema.parse(req.body);
-
-    const updatedUser = await userService.updateUser(userId, storeId, data);
+    const updatedUser = await userService.updateUser(userId, storeId, req.body);
     res.status(200).json(updatedUser);
   } catch (error) {
     next(error);
   }
 };
 
+// --- DELETE ---
 export const remove = async (
   req: Request,
   res: Response,
@@ -96,6 +97,7 @@ export const remove = async (
   }
 };
 
+// --- UPDATE (Password Reset) ---
 export const resetPassword = async (
   req: Request,
   res: Response,

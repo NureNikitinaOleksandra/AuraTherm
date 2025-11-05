@@ -29,7 +29,7 @@ export const CreateUserSchema = z.object({
   password: passwordSchema,
   firstName: z.string().min(2),
   lastName: z.string().min(2),
-  patronymic: z.string().min(2),
+  patronymic: z.string().optional(),
   role: z.enum(["ADMIN", "MANAGER", "WORKER"]),
 });
 export type CreateUserDto = z.infer<typeof CreateUserSchema>;
@@ -38,7 +38,7 @@ export const updateUserSchema = z.object({
   email: z.string().email("Невірний формат email"),
   firstName: z.string().min(1).optional(),
   lastName: z.string().min(1).optional(),
-  patronymic: z.string().min(1),
+  patronymic: z.string().optional(),
   role: z.enum(["ADMIN", "MANAGER", "WORKER"]),
 });
 export type UpdateUserDto = z.infer<typeof updateUserSchema>;

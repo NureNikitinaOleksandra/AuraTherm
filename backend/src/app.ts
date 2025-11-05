@@ -3,6 +3,8 @@ import { errorHandler } from "./api/middlewares/error.middleware.js";
 import authRoutes from "./api/routes/auth.routes.js";
 import userRoutes from "./api/routes/user.routes.js";
 import storesRoutes from "./api/routes/store.routes.js";
+import sensorRoutes from "./api/routes/sensor.routes.js";
+import zoneRoutes from "./api/routes/zone.routes.js";
 
 const app = express();
 
@@ -15,14 +17,11 @@ app.use((req, res, next) => {
 });
 
 // --- Маршрути (Routes) ---
-// 'storesRoutes' - для супер-адміна
 app.use("/api/stores", storesRoutes);
-
-// 'authRoutes' - для логіну та реєстрації
 app.use("/api/auth", authRoutes);
-
-// 'userRoutes' - для керування користувачами (будуть захищені)
 app.use("/api/users", userRoutes);
+app.use("/api/sensors", sensorRoutes);
+app.use("/api/zones", zoneRoutes);
 
 app.use(errorHandler);
 
