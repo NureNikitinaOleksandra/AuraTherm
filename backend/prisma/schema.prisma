@@ -35,10 +35,10 @@ enum AlertStatus {
 // Моделі (Таблиці)
 
 model Store {
-  id   Int    @id @default(autoincrement())
+  id   String @id @default(uuid())
   name String
 
-  // Зв'язки (1 магазин має багато...)
+  // Зв'язки
   users   User[]
   zones   Zone[]
   sensors Sensor[]
@@ -46,7 +46,7 @@ model Store {
 }
 
 model User {
-  id            Int     @id @default(autoincrement())
+  id            String  @id @default(uuid())
   email         String  @unique
   password_hash String
   first_name    String
@@ -55,7 +55,7 @@ model User {
 
   role     UserRole @default(WORKER)
   store    Store    @relation(fields: [store_id], references: [id])
-  store_id Int
+  store_id String
 
   // Зв'язки
   assignedSensors SensorAssignment[]
@@ -63,13 +63,13 @@ model User {
 }
 
 model Zone {
-  id       Int    @id @default(autoincrement())
+  id       String @id @default(uuid())
   name     String
   min_temp Float
   max_temp Float
 
-  store    Store @relation(fields: [store_id], references: [id])
-  store_id Int
+  store    Store  @relation(fields: [store_id], references: [id])
+  store_id String
 
   // Зв'язки
   sensors Sensor[]
@@ -79,15 +79,15 @@ model Zone {
 }
 
 model Sensor {
-  id       Int          @id @default(autoincrement())
+  id       String       @id @default(uuid())
   name     String
   location String?
   status   SensorStatus @default(ACTIVE)
 
-  zone     Zone  @relation(fields: [zone_id], references: [id])
-  zone_id  Int
-  store    Store @relation(fields: [store_id], references: [id])
-  store_id Int
+  zone     Zone   @relation(fields: [zone_id], references: [id])
+  zone_id  String
+  store    Store  @relation(fields: [store_id], references: [id])
+  store_id String
 
   // Зв'язки
   readings   SensorReading[]
@@ -96,33 +96,33 @@ model Sensor {
 }
 
 model SensorReading {
-  id          Int      @id @default(autoincrement())
+  id          String   @id @default(uuid())
   temperature Float
   timestamp   DateTime @default(now())
 
   sensor    Sensor @relation(fields: [sensor_id], references: [id])
-  sensor_id Int
+  sensor_id String
 }
 
 model Alert {
-  id         Int         @id @default(autoincrement())
+  id         String      @id @default(uuid())
   status     AlertStatus @default(NEW)
   created_at DateTime    @default(now())
 
   sensor    Sensor @relation(fields: [sensor_id], references: [id])
-  sensor_id Int
+  sensor_id String
   store     Store  @relation(fields: [store_id], references: [id])
-  store_id  Int
+  store_id  String
 
-  resolvedByUser      User? @relation(fields: [resolved_by_user_id], references: [id])
-  resolved_by_user_id Int? // Nullable
+  resolvedByUser      User?   @relation(fields: [resolved_by_user_id], references: [id])
+  resolved_by_user_id String? // Nullable
 }
 
 model SensorAssignment {
   user      User   @relation(fields: [user_id], references: [id])
-  user_id   Int
+  user_id   String
   sensor    Sensor @relation(fields: [sensor_id], references: [id])
-  sensor_id Int
+  sensor_id String
 
   // Складений Первинний Ключ (Composite Primary Key)
   @@id([user_id, sensor_id])

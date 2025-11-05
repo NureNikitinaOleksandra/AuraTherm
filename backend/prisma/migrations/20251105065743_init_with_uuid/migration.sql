@@ -9,7 +9,7 @@ CREATE TYPE "AlertStatus" AS ENUM ('NEW', 'ACKNOWLEDGED', 'RESOLVED');
 
 -- CreateTable
 CREATE TABLE "Store" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
 
     CONSTRAINT "Store_pkey" PRIMARY KEY ("id")
@@ -17,67 +17,67 @@ CREATE TABLE "Store" (
 
 -- CreateTable
 CREATE TABLE "User" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password_hash" TEXT NOT NULL,
     "first_name" TEXT NOT NULL,
     "last_name" TEXT NOT NULL,
     "patronymic" TEXT,
     "role" "UserRole" NOT NULL DEFAULT 'WORKER',
-    "store_id" INTEGER NOT NULL,
+    "store_id" TEXT NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Zone" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "min_temp" DOUBLE PRECISION NOT NULL,
     "max_temp" DOUBLE PRECISION NOT NULL,
-    "store_id" INTEGER NOT NULL,
+    "store_id" TEXT NOT NULL,
 
     CONSTRAINT "Zone_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Sensor" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "location" TEXT,
     "status" "SensorStatus" NOT NULL DEFAULT 'ACTIVE',
-    "zone_id" INTEGER NOT NULL,
-    "store_id" INTEGER NOT NULL,
+    "zone_id" TEXT NOT NULL,
+    "store_id" TEXT NOT NULL,
 
     CONSTRAINT "Sensor_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "SensorReading" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "temperature" DOUBLE PRECISION NOT NULL,
     "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "sensor_id" INTEGER NOT NULL,
+    "sensor_id" TEXT NOT NULL,
 
     CONSTRAINT "SensorReading_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Alert" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "status" "AlertStatus" NOT NULL DEFAULT 'NEW',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "sensor_id" INTEGER NOT NULL,
-    "store_id" INTEGER NOT NULL,
-    "resolved_by_user_id" INTEGER,
+    "sensor_id" TEXT NOT NULL,
+    "store_id" TEXT NOT NULL,
+    "resolved_by_user_id" TEXT,
 
     CONSTRAINT "Alert_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "SensorAssignment" (
-    "user_id" INTEGER NOT NULL,
-    "sensor_id" INTEGER NOT NULL,
+    "user_id" TEXT NOT NULL,
+    "sensor_id" TEXT NOT NULL,
 
     CONSTRAINT "SensorAssignment_pkey" PRIMARY KEY ("user_id","sensor_id")
 );
