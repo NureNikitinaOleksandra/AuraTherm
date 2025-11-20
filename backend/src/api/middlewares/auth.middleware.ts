@@ -25,6 +25,7 @@ declare global {
         id: string;
         role: string;
         store_id: string;
+        email: string;
       };
     }
   }
@@ -69,7 +70,7 @@ export const protect = async (
       // (ми не хочемо повний об'єкт User, лише його ID, роль і store_id)
       const user = await prisma.user.findUnique({
         where: { id: decoded.id },
-        select: { id: true, role: true, store_id: true },
+        select: { id: true, role: true, store_id: true, email: true },
       });
 
       if (!user) {

@@ -1,6 +1,6 @@
-// src/api/services/zone.service.ts
 import prisma from "../../config/db.js";
 import type { CreateZoneDto, UpdateZoneDto } from "../dtos/zone.dto.js";
+import * as auditService from "./audit.service.js";
 
 // --- CREATE (Admin) ---
 export const createZone = async (data: CreateZoneDto, storeId: string) => {
@@ -46,7 +46,8 @@ export const getZoneById = async (zoneId: string, storeId: string) => {
 export const updateZone = async (
   zoneId: string,
   storeId: string,
-  data: UpdateZoneDto
+  data: UpdateZoneDto,
+  actor: { email: string; id: string }
 ) => {
   const { count } = await prisma.zone.updateMany({
     where: {
@@ -59,6 +60,15 @@ export const updateZone = async (
   if (count === 0) {
     throw new Error("Зону не знайдено або у вас немає доступу");
   }
+
+  await auditService.logAction(
+    storeId,
+    actor.email,
+    actor.id,
+    "UPDATE_ZONE", // Дія
+    `Updated zone ${zoneId}. Data: ${JSON.stringify(data)}` // Деталі
+  );
+
   return getZoneById(zoneId, storeId);
 };
 

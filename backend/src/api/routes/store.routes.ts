@@ -1,6 +1,6 @@
 import { Router } from "express";
 import * as storeController from "../controllers/store.controller.js";
-import { isSuperAdmin } from "../middlewares/superAdmin.middleware.js"; // <-- ІМПОРТ
+import { isSuperAdmin } from "../middlewares/superAdmin.middleware.js";
 
 const router = Router();
 

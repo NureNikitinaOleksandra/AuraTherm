@@ -60,8 +60,17 @@ export const update = async (
 ) => {
   try {
     const zoneId = req.params.id!;
-    const storeId = req.user!.store_id;
-    const updatedZone = await zoneService.updateZone(zoneId, storeId, req.body);
+    const user = req.user!; // Ми знаємо, що юзер є
+    const data = updateZoneSchema.parse(req.body);
+
+    // Передаємо user.email та user.id
+    const updatedZone = await zoneService.updateZone(
+      zoneId,
+      user.store_id,
+      data,
+      { email: user.email, id: user.id } // <-- Новий аргумент
+    );
+
     res.status(200).json(updatedZone);
   } catch (error) {
     next(error);

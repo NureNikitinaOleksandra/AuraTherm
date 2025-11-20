@@ -1,11 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
 import * as sensorService from "../services/sensor.service.js";
-import {
-  createSensorSchema,
-  updateSensorSchema,
-  assignSensorSchema,
-} from "../dtos/sensor.dto.js";
-import { z } from "zod";
 
 // --- CREATE (Admin) ---
 export const create = async (

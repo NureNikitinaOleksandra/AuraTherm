@@ -12,6 +12,7 @@ import {
   updateSensorSchema,
   assignSensorSchema,
 } from "../dtos/sensor.dto.js";
+import * as readingController from "../controllers/reading.controller.js";
 
 const router = Router();
 
@@ -40,6 +41,12 @@ router.post(
   "/:id/assign",
   [isAdmin, validateBody(assignSensorSchema)],
   sensorController.assign
+);
+
+router.post(
+  "/simulate-reading",
+  [isAdmin, validateBody(readingController.readingSchema)],
+  readingController.simulate
 );
 
 export default router;
