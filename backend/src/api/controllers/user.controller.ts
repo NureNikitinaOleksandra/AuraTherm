@@ -15,7 +15,10 @@ export const create = async (
     // @ts-ignore
     const adminStoreId = req.user.store_id;
 
-    const newUser = await userService.createUserByAdmin(data, adminStoreId);
+    const newUser = await userService.createUserByAdmin(data, adminStoreId, {
+      id: req.user!.id,
+      email: req.user!.email,
+    });
     res.status(201).json(newUser);
   } catch (error) {
     next(error);
@@ -72,7 +75,12 @@ export const update = async (
     // @ts-ignore
     const storeId = req.user!.store_id;
 
-    const updatedUser = await userService.updateUser(userId, storeId, req.body);
+    const updatedUser = await userService.updateUser(
+      userId,
+      storeId,
+      req.body,
+      { id: req.user!.id, email: req.user!.email }
+    );
     res.status(200).json(updatedUser);
   } catch (error) {
     next(error);
@@ -90,7 +98,10 @@ export const remove = async (
     // @ts-ignore
     const storeId = req.user!.store_id;
 
-    await userService.deleteUser(userId, storeId);
+    await userService.deleteUser(userId, storeId, {
+      id: req.user!.id,
+      email: req.user!.email,
+    });
     res.status(204).send(); // 204 = No Content
   } catch (error) {
     next(error);
@@ -111,7 +122,10 @@ export const resetPassword = async (
     // Валідація Zod
     const data = resetPasswordSchema.parse(req.body);
 
-    const result = await userService.resetPassword(userId, storeId, data);
+    const result = await userService.resetPassword(userId, storeId, data, {
+      id: req.user!.id,
+      email: req.user!.email,
+    });
     res.status(200).json(result);
   } catch (error) {
     next(error);

@@ -5,11 +5,13 @@ import type {
   UpdateUserDto,
   ResetPasswordDto,
 } from "../dtos/auth.dto.js";
+import * as auditService from "./audit.service.js";
 
 // Сервіс для Адміна, щоб створювати працівників У СВОЄМУ магазині
 export const createUserByAdmin = async (
   data: CreateUserDto,
-  adminStoreId: string
+  adminStoreId: string,
+  actor: { id: string; email: string }
 ) => {
   const { email, password, firstName, lastName, patronymic, role } = data;
 
@@ -28,6 +30,15 @@ export const createUserByAdmin = async (
       store_id: adminStoreId,
     },
   });
+
+  // ЛОГУВАННЯ
+  await auditService.logAction(
+    adminStoreId,
+    actor.email,
+    actor.id,
+    "CREATE_USER",
+    `Created user ${newUser.email} with role ${newUser.role}`
+  );
 
   delete (newUser as any).password_hash;
   return newUser;
@@ -71,7 +82,8 @@ export const getUserById = async (userId: string, storeId: string) => {
 export const updateUser = async (
   userId: string,
   storeId: string,
-  data: UpdateUserDto
+  data: UpdateUserDto,
+  actor: { id: string; email: string }
 ) => {
   const { count } = await prisma.user.updateMany({
     where: {
@@ -85,18 +97,30 @@ export const updateUser = async (
     throw new Error("Користувача не знайдено або у вас немає доступу");
   }
 
+  // ЛОГУВАННЯ
+  await auditService.logAction(
+    storeId,
+    actor.email,
+    actor.id,
+    "UPDATE_USER",
+    `Updated user ${userId}. Changed: ${JSON.stringify(data)}`
+  );
+
   return getUserById(userId, storeId);
 };
 
-export const deleteUser = async (userId: string, storeId: string) => {
-  // Використовуємо deleteMany для того ж захисту
+export const deleteUser = async (
+  userId: string,
+  storeId: string,
+  actor: { id: string; email: string }
+) => {
   const { count } = await prisma.user.deleteMany({
     where: {
       id: userId,
       store_id: storeId,
       // Додатковий захист: не даємо Адміну видалити самого себе
       NOT: {
-        role: "ADMIN", // Або можна порівняти з ID з токену
+        role: "ADMIN",
       },
     },
   });
@@ -106,13 +130,24 @@ export const deleteUser = async (userId: string, storeId: string) => {
       "Користувача не знайдено, неможливо видалити (або це Адмін)"
     );
   }
+
+  // ЛОГУВАННЯ
+  await auditService.logAction(
+    storeId,
+    actor.email,
+    actor.id,
+    "DELETE_USER",
+    `Deleted user ${userId}`
+  );
+
   return { message: "Користувача видалено" };
 };
 
 export const resetPassword = async (
   userId: string,
   storeId: string,
-  data: ResetPasswordDto
+  data: ResetPasswordDto,
+  actor: { id: string; email: string }
 ) => {
   const hashedPassword = await bcrypt.hash(data.newPassword, 10);
 
@@ -129,6 +164,16 @@ export const resetPassword = async (
   if (count === 0) {
     throw new Error("Користувача не знайдено або у вас немає доступу");
   }
+
+  // ЛОГУВАННЯ
+  await auditService.logAction(
+    storeId,
+    actor.email,
+    actor.id,
+    "RESET_PASSWORD",
+    `Reset password for user ${userId}`
+  );
+
   return { message: "Пароль успішно оновлено" };
 };
 

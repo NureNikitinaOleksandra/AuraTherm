@@ -3,13 +3,26 @@ import type { CreateZoneDto, UpdateZoneDto } from "../dtos/zone.dto.js";
 import * as auditService from "./audit.service.js";
 
 // --- CREATE (Admin) ---
-export const createZone = async (data: CreateZoneDto, storeId: string) => {
-  return prisma.zone.create({
+export const createZone = async (
+  data: CreateZoneDto,
+  storeId: string,
+  actor: { id: string; email: string }
+) => {
+  const zone = await prisma.zone.create({
     data: {
       ...data,
       store_id: storeId,
     },
   });
+
+  await auditService.logAction(
+    storeId,
+    actor.email,
+    actor.id,
+    "CREATE_ZONE",
+    `Created zone ${zone.name}`
+  );
+  return zone;
 };
 
 // --- READ ALL (Admin / Manager) ---
@@ -73,7 +86,11 @@ export const updateZone = async (
 };
 
 // --- DELETE (Admin) ---
-export const deleteZone = async (zoneId: string, storeId: string) => {
+export const deleteZone = async (
+  zoneId: string,
+  storeId: string,
+  actor: { id: string; email: string }
+) => {
   const sensorsInZone = await prisma.sensor.count({
     where: { zone_id: zoneId },
   });
@@ -95,5 +112,14 @@ export const deleteZone = async (zoneId: string, storeId: string) => {
   if (count === 0) {
     throw new Error("Зону не знайдено або у вас немає доступу");
   }
+
+  await auditService.logAction(
+    storeId,
+    actor.email,
+    actor.id,
+    "DELETE_ZONE",
+    `Deleted zone ${zoneId}`
+  );
+
   return { message: "Зону видалено" };
 };

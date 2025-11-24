@@ -1,9 +1,14 @@
 import prisma from "../../config/db.js";
 import type { CreateSensorDto, UpdateSensorDto } from "../dtos/sensor.dto.js";
+import * as auditService from "./audit.service.js";
 
 // --- CREATE (Admin) ---
-export const createSensor = async (data: CreateSensorDto, storeId: string) => {
-  // Перевіряємо, чи зона належить цьому ж магазину (безпека)
+export const createSensor = async (
+  data: CreateSensorDto,
+  storeId: string,
+  actor: { id: string; email: string }
+) => {
+  // Перевіряємо, чи зона належить цьому ж магазину
   const zone = await prisma.zone.findFirst({
     where: {
       id: data.zone_id,
@@ -15,12 +20,23 @@ export const createSensor = async (data: CreateSensorDto, storeId: string) => {
     throw new Error("Зону не знайдено або вона не належить вашому магазину");
   }
 
-  return prisma.sensor.create({
+  const sensor = await prisma.sensor.create({
     data: {
       ...data,
       store_id: storeId, // Прив'язка до магазину Адміна
     },
   });
+
+  // ЛОГУВАННЯ
+  await auditService.logAction(
+    storeId,
+    actor.email,
+    actor.id,
+    "CREATE_SENSOR",
+    `Created sensor ${sensor.name} in zone ${sensor.zone_id}`
+  );
+
+  return sensor;
 };
 
 // --- READ ALL (Admin / Manager) ---
@@ -63,7 +79,8 @@ export const getSensorById = async (sensorId: string, storeId: string) => {
 export const updateSensor = async (
   sensorId: string,
   storeId: string,
-  data: UpdateSensorDto
+  data: UpdateSensorDto,
+  actor: { id: string; email: string }
 ) => {
   const { count } = await prisma.sensor.updateMany({
     where: {
@@ -76,11 +93,25 @@ export const updateSensor = async (
   if (count === 0) {
     throw new Error("Датчик не знайдено або у вас немає доступу");
   }
+
+  // ЛОГУВАННЯ
+  await auditService.logAction(
+    storeId,
+    actor.email,
+    actor.id,
+    "UPDATE_SENSOR",
+    `Updated sensor ${sensorId}. Data: ${JSON.stringify(data)}`
+  );
+
   return getSensorById(sensorId, storeId);
 };
 
 // --- DELETE (Admin) ---
-export const deleteSensor = async (sensorId: string, storeId: string) => {
+export const deleteSensor = async (
+  sensorId: string,
+  storeId: string,
+  actor: { id: string; email: string }
+) => {
   const { count } = await prisma.sensor.deleteMany({
     where: {
       id: sensorId,
@@ -91,6 +122,16 @@ export const deleteSensor = async (sensorId: string, storeId: string) => {
   if (count === 0) {
     throw new Error("Датчик не знайдено або у вас немає доступу");
   }
+
+  // ЛОГУВАННЯ
+  await auditService.logAction(
+    storeId,
+    actor.email,
+    actor.id,
+    "DELETE_SENSOR",
+    `Deleted sensor ${sensorId}`
+  );
+
   return { message: "Датчик видалено" };
 };
 
@@ -98,7 +139,8 @@ export const deleteSensor = async (sensorId: string, storeId: string) => {
 export const assignSensor = async (
   sensorId: string,
   workerId: string,
-  adminStoreId: string
+  adminStoreId: string,
+  actor: { id: string; email: string }
 ) => {
   // Потужна перевірка: переконуємось, що і Адмін, і Працівник,
   // і Датчик - всі з ОДНОГО магазину
@@ -114,12 +156,23 @@ export const assignSensor = async (
   if (worker.role !== "WORKER")
     throw new Error("Призначати можна лише Працівників");
 
-  return prisma.sensorAssignment.create({
+  const result = await prisma.sensorAssignment.create({
     data: {
       user_id: workerId,
       sensor_id: sensorId,
     },
   });
+
+  // ЛОГУВАННЯ
+  await auditService.logAction(
+    adminStoreId,
+    actor.email,
+    actor.id,
+    "ASSIGN_SENSOR",
+    `Assigned sensor ${sensorId} to worker ${workerId}`
+  );
+
+  return result;
 };
 
 // --- READ ASSIGNED (Worker) ---

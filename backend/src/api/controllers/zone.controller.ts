@@ -11,7 +11,10 @@ export const create = async (
 ) => {
   try {
     const storeId = req.user!.store_id;
-    const zone = await zoneService.createZone(req.body, storeId);
+    const zone = await zoneService.createZone(req.body, storeId, {
+      id: req.user!.id,
+      email: req.user!.email,
+    });
     res.status(201).json(zone);
   } catch (error) {
     next(error);
@@ -86,7 +89,10 @@ export const remove = async (
   try {
     const zoneId = req.params.id!;
     const storeId = req.user!.store_id;
-    await zoneService.deleteZone(zoneId, storeId);
+    await zoneService.deleteZone(zoneId, storeId, {
+      id: req.user!.id,
+      email: req.user!.email,
+    });
     res.status(204).send();
   } catch (error) {
     next(error);

@@ -9,7 +9,10 @@ export const create = async (
 ) => {
   try {
     const storeId = req.user!.store_id;
-    const sensor = await sensorService.createSensor(req.body, storeId);
+    const sensor = await sensorService.createSensor(req.body, storeId, {
+      id: req.user!.id,
+      email: req.user!.email,
+    });
     res.status(201).json(sensor);
   } catch (error) {
     next(error);
@@ -62,7 +65,8 @@ export const update = async (
     const updatedSensor = await sensorService.updateSensor(
       sensorId,
       storeId,
-      req.body
+      req.body,
+      { id: req.user!.id, email: req.user!.email }
     );
     res.status(200).json(updatedSensor);
   } catch (error) {
@@ -79,7 +83,10 @@ export const remove = async (
   try {
     const sensorId = req.params.id!;
     const storeId = req.user!.store_id;
-    await sensorService.deleteSensor(sensorId, storeId);
+    await sensorService.deleteSensor(sensorId, storeId, {
+      id: req.user!.id,
+      email: req.user!.email,
+    });
     res.status(204).send();
   } catch (error) {
     next(error);
@@ -100,7 +107,8 @@ export const assign = async (
     const assignment = await sensorService.assignSensor(
       sensorId,
       userId,
-      adminStoreId
+      adminStoreId,
+      { id: req.user!.id, email: req.user!.email }
     );
     res.status(201).json(assignment);
   } catch (error) {

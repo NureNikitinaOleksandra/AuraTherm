@@ -7,6 +7,7 @@ import sensorRoutes from "./api/routes/sensor.routes.js";
 import zoneRoutes from "./api/routes/zone.routes.js";
 import auditRoutes from "./api/routes/audit.routes.js";
 import analyticsRoutes from "./api/routes/analytics.routes.js";
+import alertRoutes from "./api/routes/alert.routes.js";
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/sensors", sensorRoutes);
 app.use("/api/zones", zoneRoutes);
+app.use("/api/alerts", alertRoutes);
 app.use("/api/audit-logs", auditRoutes);
 app.use("/api/analytics", analyticsRoutes);
 
