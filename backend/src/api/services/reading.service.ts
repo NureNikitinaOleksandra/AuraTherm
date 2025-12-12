@@ -1,7 +1,29 @@
 import prisma from "../../config/db.js";
 import * as notificationService from "./notification.service.js";
 
-export const processReading = async (sensorId: string, temperature: number) => {
+// Інтерфейс для вхідних даних
+interface ReadingData {
+  temperature: number;
+  humidity?: number;
+  dewPoint?: number;
+}
+
+export const processReading = async (
+  sensorId: string,
+  data: ReadingData | number
+) => {
+  let temperature: number;
+  let humidity: number | undefined;
+  let dewPoint: number | undefined;
+
+  if (typeof data === "number") {
+    temperature = data;
+  } else {
+    temperature = data.temperature;
+    humidity = data.humidity;
+    dewPoint = data.dewPoint;
+  }
+
   const sensor = await prisma.sensor.findUnique({
     where: { id: sensorId },
     include: {
@@ -25,6 +47,8 @@ export const processReading = async (sensorId: string, temperature: number) => {
     data: {
       sensor_id: sensorId,
       temperature: temperature,
+      humidity: humidity,
+      dew_point: dewPoint,
     },
   });
 
@@ -92,5 +116,12 @@ export const processReading = async (sensorId: string, temperature: number) => {
         `⚠️ Alert continues for ${sensor.name}. Current: ${temperature}°C`
       );
     }
+  }
+
+  // Якщо різниця між Температурою і Точкою Роси менше 2 градусів -> Ризик!
+  if (dewPoint !== undefined && temperature - dewPoint < 2.0) {
+    console.warn(
+      `💧 [WARNING] Condensation Risk at ${sensor.name}! T:${temperature}, DP:${dewPoint}`
+    );
   }
 };

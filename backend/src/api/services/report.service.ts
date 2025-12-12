@@ -17,17 +17,32 @@ export const getDailyReportData = async (storeId: string) => {
       store_id: storeId,
       created_at: { gte: yesterday },
     },
-    include: { sensor: true },
+    include: {
+      sensor: {
+        include: {
+          readings: {
+            orderBy: { timestamp: "desc" },
+            take: 1, // Беремо останній запис показників для цього датчика
+          },
+        },
+      },
+    },
     orderBy: { created_at: "desc" },
   });
 
-  return alerts.map((alert) => ({
-    id: alert.id,
-    time: alert.created_at,
-    sensorName: alert.sensor.name,
-    zoneId: alert.sensor.zone_id,
-    status: alert.status,
-  }));
+  return alerts.map((alert) => {
+    const reading = alert.sensor.readings[0];
+    return {
+      id: alert.id,
+      time: alert.created_at,
+      sensorName: alert.sensor.name,
+      zoneId: alert.sensor.zone_id,
+      status: alert.status,
+      temp: reading ? reading.temperature : "N/A",
+      hum: reading ? reading.humidity : "N/A",
+      dp: reading ? reading.dew_point : "N/A",
+    };
+  });
 };
 
 // Генерація PDF
@@ -85,6 +100,14 @@ export const generateDailyReportPdf = async (
       doc
         .fontSize(12)
         .text(`${index + 1}. [${time}] Датчик: ${item.sensorName}`);
+
+      doc
+        .fontSize(10)
+        .font("Roboto")
+        .fillColor("black")
+        .text(
+          `   Показники: T: ${item.temp}°C | H: ${item.hum}% | DP: ${item.dp}°C`
+        );
 
       // Використовуємо сірий колір для деталей
       doc

@@ -105,6 +105,8 @@ model SensorReading {
   id          String   @id @default(uuid())
   temperature Float
   timestamp   DateTime @default(now())
+  humidity    Float?
+  dew_point   Float?
 
   sensor    Sensor @relation(fields: [sensor_id], references: [id])
   sensor_id String
