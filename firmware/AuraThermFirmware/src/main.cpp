@@ -13,8 +13,8 @@ const char* MQTT_SERVER = "broker.hivemq.com";
 const int MQTT_PORT = 1883;
 
 // РЕАЛЬНІ ДАНІ З БД
-const char* SENSOR_ID = "39dd1f85-5dce-4c7c-ae6a-20081f3c1c00";
-const char* MQTT_TOPIC = "auratherm/669bfa03-620b-4e6f-883f-08b454632052/readings";
+const char* SENSOR_ID = "ff5025d2-24bb-4cce-a5ee-15306e08aa6e";
+const char* MQTT_TOPIC = "auratherm/9a038ea4-099f-4ce8-9a51-0417907dd9be/readings";
 
 // ЛІМІТИ ЗОНИ (Для візуалізації на екрані)
 const float MIN_TEMP = -22.0;

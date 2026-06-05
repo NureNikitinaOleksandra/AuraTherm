@@ -1,26 +1,30 @@
 {
   "dependencies": {
     "-": "^0.0.1",
-    "@prisma/client": "^6.18.0",
+    "@prisma/client": "5.22.0",
     "@types/pdfkit": "^0.17.3",
     "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "firebase-admin": "^13.10.0",
     "jsonwebtoken": "^9.0.2",
     "mqtt": "^5.14.1",
     "pdfkit": "^0.17.2",
     "pg": "^8.16.3",
-    "prisma": "^6.18.0",
+    "prisma": "5.22.0",
     "zod": "^4.1.12"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/mqtt": "^0.0.34",
     "@types/node": "^24.9.2",
     "@types/pg": "^8.15.6",
     "nodemon": "^3.1.10",
+    "prisma": "5.22.0",
     "rimraf": "^6.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"

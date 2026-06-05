@@ -60,7 +60,7 @@ export const login = async (data: LoginDto) => {
   // 2. Перевірити пароль
   const isPasswordValid = await bcrypt.compare(
     data.password,
-    user.password_hash
+    user.password_hash,
   );
   if (!isPasswordValid) {
     throw new Error("Неправильний email або пароль");
@@ -79,5 +79,15 @@ export const login = async (data: LoginDto) => {
     expiresIn: "1d", // Токен дійсний 1 день
   });
 
-  return { token: token };
+  return {
+    token: token,
+    user: {
+      id: user.id,
+      email: user.email,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      role: user.role,
+      store_id: user.store_id,
+    },
+  };
 };

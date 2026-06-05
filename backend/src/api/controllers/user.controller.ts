@@ -8,7 +8,7 @@ import { z } from "zod";
 export const create = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const data: CreateUserDto = req.body;
@@ -29,7 +29,7 @@ export const create = async (
 export const getAll = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     // @ts-ignore
@@ -46,7 +46,7 @@ export const getAll = async (
 export const getById = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const userId = req.params.id!;
@@ -68,7 +68,7 @@ export const getById = async (
 export const update = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const userId = req.params.id!;
@@ -79,7 +79,7 @@ export const update = async (
       userId,
       storeId,
       req.body,
-      { id: req.user!.id, email: req.user!.email }
+      { id: req.user!.id, email: req.user!.email },
     );
     res.status(200).json(updatedUser);
   } catch (error) {
@@ -91,7 +91,7 @@ export const update = async (
 export const remove = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const userId = req.params.id!;
@@ -112,7 +112,7 @@ export const remove = async (
 export const resetPassword = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const userId = req.params.id!;
@@ -135,11 +135,27 @@ export const resetPassword = async (
 export const getAllForSuperAdmin = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const users = await userService.getAllUsersSuperAdmin();
     res.status(200).json(users);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.user!.id; // Дістаємо ID з JWT токена
+    const { fcm_token } = req.body;
+
+    await userService.updateFcmToken(userId, fcm_token);
+    res.status(200).json({ message: "FCM токен оновлено" });
   } catch (error) {
     next(error);
   }

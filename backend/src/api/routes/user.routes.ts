@@ -15,8 +15,10 @@ const router = Router();
 // --- Роути для Супер-Адміна (з майстер-ключем) ---
 router.get("/all-system", isSuperAdmin, userController.getAllForSuperAdmin);
 
-// --- Роути для звичайних Адмінів (з JWT-токеном) ---
+// --- Роути для усіх (з JWT-токеном) ---
 router.use(protect); // Спочатку перевіряємо токен
+router.put("/fcm-token", userController.updateToken);
+
 router.use(isAdmin); // Потім перевіряємо, що це Адмін
 
 router.post("/", validateBody(CreateUserSchema), userController.create);
@@ -27,7 +29,7 @@ router.delete("/:id", userController.remove);
 router.put(
   "/:id/reset-password",
   validateBody(resetPasswordSchema),
-  userController.resetPassword
+  userController.resetPassword,
 );
 
 export default router;

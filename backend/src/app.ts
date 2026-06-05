@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import { errorHandler } from "./api/middlewares/error.middleware.js";
 import authRoutes from "./api/routes/auth.routes.js";
 import userRoutes from "./api/routes/user.routes.js";
@@ -10,6 +11,13 @@ import analyticsRoutes from "./api/routes/analytics.routes.js";
 import alertRoutes from "./api/routes/alert.routes.js";
 
 const app = express();
+
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Дозволяємо запити тільки з React-клієнта
+    credentials: true, // Якщо раптом будемо передавати кукі
+  }),
+);
 
 app.use(express.json());
 

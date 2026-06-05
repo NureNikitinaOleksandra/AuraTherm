@@ -11,7 +11,7 @@ import * as auditService from "./audit.service.js";
 export const createUserByAdmin = async (
   data: CreateUserDto,
   adminStoreId: string,
-  actor: { id: string; email: string }
+  actor: { id: string; email: string },
 ) => {
   const { email, password, firstName, lastName, patronymic, role } = data;
 
@@ -37,7 +37,7 @@ export const createUserByAdmin = async (
     actor.email,
     actor.id,
     "CREATE_USER",
-    `Created user ${newUser.email} with role ${newUser.role}`
+    `Created user ${newUser.email} with role ${newUser.role}`,
   );
 
   delete (newUser as any).password_hash;
@@ -83,14 +83,22 @@ export const updateUser = async (
   userId: string,
   storeId: string,
   data: UpdateUserDto,
-  actor: { id: string; email: string }
+  actor: { id: string; email: string },
 ) => {
+  const { firstName, lastName, patronymic, email, role } = data;
+
   const { count } = await prisma.user.updateMany({
     where: {
       id: userId,
       store_id: storeId,
     },
-    data: data,
+    data: {
+      first_name: firstName,
+      last_name: lastName,
+      email: email,
+      patronymic: patronymic,
+      role: role,
+    },
   });
 
   if (count === 0) {
@@ -103,7 +111,7 @@ export const updateUser = async (
     actor.email,
     actor.id,
     "UPDATE_USER",
-    `Updated user ${userId}. Changed: ${JSON.stringify(data)}`
+    `Updated user ${userId}. Changed: ${JSON.stringify(data)}`,
   );
 
   return getUserById(userId, storeId);
@@ -112,7 +120,7 @@ export const updateUser = async (
 export const deleteUser = async (
   userId: string,
   storeId: string,
-  actor: { id: string; email: string }
+  actor: { id: string; email: string },
 ) => {
   const { count } = await prisma.user.deleteMany({
     where: {
@@ -127,7 +135,7 @@ export const deleteUser = async (
 
   if (count === 0) {
     throw new Error(
-      "Користувача не знайдено, неможливо видалити (або це Адмін)"
+      "Користувача не знайдено, неможливо видалити (або це Адмін)",
     );
   }
 
@@ -137,7 +145,7 @@ export const deleteUser = async (
     actor.email,
     actor.id,
     "DELETE_USER",
-    `Deleted user ${userId}`
+    `Deleted user ${userId}`,
   );
 
   return { message: "Користувача видалено" };
@@ -147,7 +155,7 @@ export const resetPassword = async (
   userId: string,
   storeId: string,
   data: ResetPasswordDto,
-  actor: { id: string; email: string }
+  actor: { id: string; email: string },
 ) => {
   const hashedPassword = await bcrypt.hash(data.newPassword, 10);
 
@@ -171,7 +179,7 @@ export const resetPassword = async (
     actor.email,
     actor.id,
     "RESET_PASSWORD",
-    `Reset password for user ${userId}`
+    `Reset password for user ${userId}`,
   );
 
   return { message: "Пароль успішно оновлено" };
@@ -190,5 +198,12 @@ export const getAllUsersSuperAdmin = async () => {
         },
       },
     },
+  });
+};
+
+export const updateFcmToken = async (userId: string, token: string) => {
+  return prisma.user.update({
+    where: { id: userId },
+    data: { fcm_token: token },
   });
 };

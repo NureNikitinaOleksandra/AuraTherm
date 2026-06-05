@@ -48,16 +48,16 @@ model Store {
 }
 
 model User {
-  id            String  @id @default(uuid())
-  email         String  @unique
+  id            String   @id @default(uuid())
+  email         String   @unique
   password_hash String
   first_name    String
   last_name     String
   patronymic    String? // '?' означає Nullable
-
-  role     UserRole @default(WORKER)
-  store    Store    @relation(fields: [store_id], references: [id])
-  store_id String
+  role          UserRole @default(WORKER)
+  fcm_token     String?
+  store         Store    @relation(fields: [store_id], references: [id])
+  store_id      String
 
   // Зв'язки
   assignedSensors SensorAssignment[]
@@ -113,9 +113,11 @@ model SensorReading {
 }
 
 model Alert {
-  id         String      @id @default(uuid())
-  status     AlertStatus @default(NEW)
-  created_at DateTime    @default(now())
+  id              String      @id @default(uuid())
+  status          AlertStatus @default(NEW)
+  created_at      DateTime    @default(now())
+  acknowledged_at DateTime?
+  resolved_at     DateTime?
 
   sensor    Sensor @relation(fields: [sensor_id], references: [id])
   sensor_id String

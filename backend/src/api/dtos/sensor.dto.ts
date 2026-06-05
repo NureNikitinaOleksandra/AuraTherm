@@ -5,6 +5,8 @@ import { SensorStatus } from "@prisma/client";
 export const createSensorSchema = z.object({
   name: z.string().min(1, { message: "Ім'я не може бути порожнім" }),
   location: z.string().optional(),
+  pos_x: z.number().optional().nullable(),
+  pos_y: z.number().optional().nullable(),
   status: z.nativeEnum(SensorStatus).default("ACTIVE"),
   zone_id: z
     .string()

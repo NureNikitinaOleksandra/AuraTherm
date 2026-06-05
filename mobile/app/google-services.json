@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "675329027695",
+    "project_id": "auratherm-mobile",
+    "storage_bucket": "auratherm-mobile.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:675329027695:android:064e294afb0ff47d7ba79a",
+        "android_client_info": {
+          "package_name": "com.auratherm.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDuXfB1bmANwXMndsTfaGIuXFC9avFmwP4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

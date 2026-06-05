@@ -7,7 +7,7 @@ import { z } from "zod";
 export const create = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const storeId = req.user!.store_id;
@@ -25,7 +25,7 @@ export const create = async (
 export const getAll = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const storeId = req.user!.store_id;
@@ -40,7 +40,7 @@ export const getAll = async (
 export const getById = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const zoneId = req.params.id!;
@@ -59,7 +59,7 @@ export const getById = async (
 export const update = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const zoneId = req.params.id!;
@@ -71,7 +71,7 @@ export const update = async (
       zoneId,
       user.store_id,
       data,
-      { email: user.email, id: user.id } // <-- Новий аргумент
+      { email: user.email, id: user.id }, // <-- Новий аргумент
     );
 
     res.status(200).json(updatedZone);
@@ -84,7 +84,7 @@ export const update = async (
 export const remove = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const zoneId = req.params.id!;
@@ -94,6 +94,29 @@ export const remove = async (
       email: req.user!.email,
     });
     res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+};
+
+// GET /api/zones/:id/sensors
+export const getZoneSensors = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const storeId = req.user!.store_id;
+    const zoneId = req.params.id!;
+
+    const sensors = await zoneService.getZoneSensors(
+      zoneId,
+      storeId,
+      req.user!.id,
+      req.user!.role,
+    );
+
+    res.status(200).json(sensors);
   } catch (error) {
     next(error);
   }

@@ -35,7 +35,7 @@ export const getDashboardStats = async (storeId: string) => {
 export const getSensorHistory = async (
   sensorId: string,
   storeId: string,
-  days: number = 1
+  days: number = 1,
 ) => {
   // Вираховуємо дату "N днів тому"
   const startDate = new Date();
@@ -56,7 +56,12 @@ export const getSensorHistory = async (
       },
     },
     orderBy: { timestamp: "asc" }, // Для графіка важливо по порядку
-    select: { temperature: true, timestamp: true },
+    select: {
+      temperature: true,
+      humidity: true,
+      dew_point: true,
+      timestamp: true,
+    },
   });
 
   return readings;

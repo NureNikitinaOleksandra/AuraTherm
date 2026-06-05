@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Базовий фон для всього додатку, як у мобілці */
+body {
+  background-color: #f5f5f5;
+  color: #212121;
+}

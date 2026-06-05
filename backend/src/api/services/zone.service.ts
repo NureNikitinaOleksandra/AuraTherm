@@ -6,7 +6,7 @@ import * as auditService from "./audit.service.js";
 export const createZone = async (
   data: CreateZoneDto,
   storeId: string,
-  actor: { id: string; email: string }
+  actor: { id: string; email: string },
 ) => {
   const zone = await prisma.zone.create({
     data: {
@@ -20,7 +20,7 @@ export const createZone = async (
     actor.email,
     actor.id,
     "CREATE_ZONE",
-    `Created zone ${zone.name}`
+    `Created zone ${zone.name}`,
   );
   return zone;
 };
@@ -60,7 +60,7 @@ export const updateZone = async (
   zoneId: string,
   storeId: string,
   data: UpdateZoneDto,
-  actor: { email: string; id: string }
+  actor: { email: string; id: string },
 ) => {
   const { count } = await prisma.zone.updateMany({
     where: {
@@ -79,7 +79,7 @@ export const updateZone = async (
     actor.email,
     actor.id,
     "UPDATE_ZONE", // Дія
-    `Updated zone ${zoneId}. Data: ${JSON.stringify(data)}` // Деталі
+    `Updated zone ${zoneId}. Data: ${JSON.stringify(data)}`, // Деталі
   );
 
   return getZoneById(zoneId, storeId);
@@ -89,7 +89,7 @@ export const updateZone = async (
 export const deleteZone = async (
   zoneId: string,
   storeId: string,
-  actor: { id: string; email: string }
+  actor: { id: string; email: string },
 ) => {
   const sensorsInZone = await prisma.sensor.count({
     where: { zone_id: zoneId },
@@ -97,7 +97,7 @@ export const deleteZone = async (
 
   if (sensorsInZone > 0) {
     throw new Error(
-      "Неможливо видалити зону, оскільки до неї прив'язані датчики"
+      "Неможливо видалити зону, оскільки до неї прив'язані датчики",
     );
   }
 
@@ -118,8 +118,39 @@ export const deleteZone = async (
     actor.email,
     actor.id,
     "DELETE_ZONE",
-    `Deleted zone ${zoneId}`
+    `Deleted zone ${zoneId}`,
   );
 
   return { message: "Зону видалено" };
+};
+
+// Для працівника
+export const getZoneSensors = async (
+  zoneId: string,
+  storeId: string,
+  userId: string,
+  role: string,
+) => {
+  // Базові умови пошуку
+  const whereClause: any = {
+    zone_id: zoneId,
+    store_id: storeId,
+  };
+
+  // Якщо це працівник, додаємо фільтр: шукати лише ті датчики, до яких він прикріплений
+  if (role === "WORKER") {
+    whereClause.assignedTo = {
+      some: { user_id: userId },
+    };
+  }
+
+  return prisma.sensor.findMany({
+    where: whereClause,
+    include: {
+      readings: {
+        orderBy: { timestamp: "desc" },
+        take: 1, // Беремо лише поточну температуру
+      },
+    },
+  });
 };

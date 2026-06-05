@@ -4,7 +4,7 @@ import * as auditService from "./audit.service.js";
 // --- ОТРИМАННЯ СПИСКУ  (Фільтрація) ---
 export const getAllAlerts = async (
   storeId: string,
-  status?: "NEW" | "ACKNOWLEDGED" | "RESOLVED"
+  status?: "NEW" | "ACKNOWLEDGED" | "RESOLVED",
 ) => {
   return prisma.alert.findMany({
     where: {
@@ -25,11 +25,31 @@ export const getAllAlerts = async (
   });
 };
 
+export const getAlertById = async (alertId: string, storeId: string) => {
+  return prisma.alert.findUnique({
+    where: { id: alertId, store_id: storeId },
+    include: {
+      sensor: {
+        include: {
+          zone: true,
+          readings: {
+            orderBy: { timestamp: "desc" }, // Сортуємо від найновіших
+            take: 1, // Беремо тільки останній запис
+          },
+        },
+      },
+      resolvedByUser: {
+        select: { first_name: true, last_name: true },
+      },
+    },
+  });
+};
+
 // --- ACKNOWLEDGE (Взяти в роботу) ---
 export const acknowledgeAlert = async (
   alertId: string,
   storeId: string,
-  actor: { id: string; email: string }
+  actor: { id: string; email: string },
 ) => {
   const alert = await prisma.alert.findFirst({
     where: { id: alertId, store_id: storeId },
@@ -41,7 +61,7 @@ export const acknowledgeAlert = async (
 
   const updatedAlert = await prisma.alert.update({
     where: { id: alertId },
-    data: { status: "ACKNOWLEDGED" },
+    data: { status: "ACKNOWLEDGED", acknowledged_at: new Date() },
   });
 
   // ЛОГУВАННЯ
@@ -50,7 +70,7 @@ export const acknowledgeAlert = async (
     actor.email,
     actor.id,
     "ACKNOWLEDGE_ALERT",
-    `Alert ${alertId} acknowledged by user`
+    `Alert ${alertId} acknowledged by user`,
   );
 
   return updatedAlert;
@@ -60,7 +80,7 @@ export const acknowledgeAlert = async (
 export const resolveAlert = async (
   alertId: string,
   storeId: string,
-  actor: { id: string; email: string }
+  actor: { id: string; email: string },
 ) => {
   const alert = await prisma.alert.findFirst({
     where: { id: alertId, store_id: storeId },
@@ -73,6 +93,7 @@ export const resolveAlert = async (
     data: {
       status: "RESOLVED",
       resolved_by_user_id: actor.id, // Записуємо хто вирішив
+      resolved_at: new Date(),
     },
   });
 
@@ -82,7 +103,7 @@ export const resolveAlert = async (
     actor.email,
     actor.id,
     "RESOLVE_ALERT",
-    `Alert ${alertId} resolved by user`
+    `Alert ${alertId} resolved by user`,
   );
 
   return updatedAlert;

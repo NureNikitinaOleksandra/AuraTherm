@@ -6,7 +6,7 @@ import * as auditService from "./audit.service.js";
 export const createSensor = async (
   data: CreateSensorDto,
   storeId: string,
-  actor: { id: string; email: string }
+  actor: { id: string; email: string },
 ) => {
   // Перевіряємо, чи зона належить цьому ж магазину
   const zone = await prisma.zone.findFirst({
@@ -33,7 +33,7 @@ export const createSensor = async (
     actor.email,
     actor.id,
     "CREATE_SENSOR",
-    `Created sensor ${sensor.name} in zone ${sensor.zone_id}`
+    `Created sensor ${sensor.name} in zone ${sensor.zone_id}`,
   );
 
   return sensor;
@@ -46,9 +46,18 @@ export const getAllSensors = async (storeId: string) => {
       store_id: storeId,
     },
     include: {
-      zone: {
-        // Додаємо інформацію про зону
-        select: { id: true, name: true },
+      zone: true,
+      assignedTo: {
+        select: {
+          user: {
+            select: { id: true, first_name: true, last_name: true },
+          },
+        },
+      },
+      // Останній показник для кожного датчика
+      readings: {
+        orderBy: { timestamp: "desc" },
+        take: 1,
       },
     },
   });
@@ -71,6 +80,11 @@ export const getSensorById = async (sensorId: string, storeId: string) => {
           },
         },
       },
+      // Підтягуємо 1 останній показник датчика
+      readings: {
+        orderBy: { timestamp: "desc" },
+        take: 1,
+      },
     },
   });
 };
@@ -80,7 +94,7 @@ export const updateSensor = async (
   sensorId: string,
   storeId: string,
   data: UpdateSensorDto,
-  actor: { id: string; email: string }
+  actor: { id: string; email: string },
 ) => {
   const { count } = await prisma.sensor.updateMany({
     where: {
@@ -100,7 +114,7 @@ export const updateSensor = async (
     actor.email,
     actor.id,
     "UPDATE_SENSOR",
-    `Updated sensor ${sensorId}. Data: ${JSON.stringify(data)}`
+    `Updated sensor ${sensorId}. Data: ${JSON.stringify(data)}`,
   );
 
   return getSensorById(sensorId, storeId);
@@ -110,7 +124,7 @@ export const updateSensor = async (
 export const deleteSensor = async (
   sensorId: string,
   storeId: string,
-  actor: { id: string; email: string }
+  actor: { id: string; email: string },
 ) => {
   const { count } = await prisma.sensor.deleteMany({
     where: {
@@ -129,7 +143,7 @@ export const deleteSensor = async (
     actor.email,
     actor.id,
     "DELETE_SENSOR",
-    `Deleted sensor ${sensorId}`
+    `Deleted sensor ${sensorId}`,
   );
 
   return { message: "Датчик видалено" };
@@ -140,7 +154,7 @@ export const assignSensor = async (
   sensorId: string,
   workerId: string,
   adminStoreId: string,
-  actor: { id: string; email: string }
+  actor: { id: string; email: string },
 ) => {
   // Потужна перевірка: переконуємось, що і Адмін, і Працівник,
   // і Датчик - всі з ОДНОГО магазину
@@ -156,6 +170,10 @@ export const assignSensor = async (
   if (worker.role !== "WORKER")
     throw new Error("Призначати можна лише Працівників");
 
+  await prisma.sensorAssignment.deleteMany({
+    where: { sensor_id: sensorId },
+  });
+
   const result = await prisma.sensorAssignment.create({
     data: {
       user_id: workerId,
@@ -169,7 +187,7 @@ export const assignSensor = async (
     actor.email,
     actor.id,
     "ASSIGN_SENSOR",
-    `Assigned sensor ${sensorId} to worker ${workerId}`
+    `Assigned sensor ${sensorId} to worker ${workerId}`,
   );
 
   return result;

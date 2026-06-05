@@ -27,8 +27,8 @@ export type LoginDto = z.infer<typeof LoginSchema>;
 export const CreateUserSchema = z.object({
   email: z.string().email("Невірний формат email"),
   password: passwordSchema,
-  firstName: z.string().min(2),
-  lastName: z.string().min(2),
+  firstName: z.string().min(2, "Ім'я повинно містити мінімум 2 символи"),
+  lastName: z.string().min(2, "Прізвище повинно містити мінімум 2 символи"),
   patronymic: z.string().optional(),
   role: z.enum(["ADMIN", "MANAGER", "WORKER"]),
 });
@@ -36,8 +36,14 @@ export type CreateUserDto = z.infer<typeof CreateUserSchema>;
 
 export const updateUserSchema = z.object({
   email: z.string().email("Невірний формат email"),
-  firstName: z.string().min(1).optional(),
-  lastName: z.string().min(1).optional(),
+  firstName: z
+    .string()
+    .min(2, "Ім'я повинно містити мінімум 2 символи")
+    .optional(),
+  lastName: z
+    .string()
+    .min(2, "Прізвище повинно містити мінімум 2 символи")
+    .optional(),
   patronymic: z.string().optional(),
   role: z.enum(["ADMIN", "MANAGER", "WORKER"]),
 });

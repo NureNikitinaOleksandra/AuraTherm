@@ -14,16 +14,19 @@ router.use(protect);
 router.get("/", isAdminOrManager, zoneController.getAll);
 router.get("/:id", isAdminOrManager, zoneController.getById);
 
+// Маршрут для отримання всіх датчиків конкретної зони
+router.get("/:id/sensors", zoneController.getZoneSensors);
+
 // --- Маршрути ТІЛЬКИ для Адміна (Admin) ---
 router.post(
   "/",
   [isAdmin, validateBody(createZoneSchema)],
-  zoneController.create
+  zoneController.create,
 );
 router.put(
   "/:id",
   [isAdmin, validateBody(updateZoneSchema)],
-  zoneController.update
+  zoneController.update,
 );
 router.delete("/:id", isAdmin, zoneController.remove);
 

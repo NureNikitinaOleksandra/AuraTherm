@@ -9,6 +9,9 @@ router.use(protect);
 // Отримати список тривог
 router.get("/", alertController.getAll);
 
+// Маршрут для отримання деталей однієї тривоги
+router.get("/:id", alertController.getById);
+
 // Взяти тривогу в роботу
 router.patch("/:id/acknowledge", alertController.acknowledge);
 

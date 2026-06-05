@@ -10,7 +10,7 @@ interface ReadingData {
 
 export const processReading = async (
   sensorId: string,
-  data: ReadingData | number
+  data: ReadingData | number,
 ) => {
   let temperature: number;
   let humidity: number | undefined;
@@ -97,23 +97,24 @@ export const processReading = async (
       const managerIds = managers.map((m) => m.id);
 
       const recipients = Array.from(
-        new Set([...assignedWorkerIds, ...managerIds])
+        new Set([...assignedWorkerIds, ...managerIds]),
       );
 
       if (recipients.length > 0) {
         await notificationService.sendPushNotification(
           recipients,
           `ТРИВОГА: ${sensor.name}`,
-          `${violationType}: ${temperature}°C (Норма: ${min_temp}...${max_temp})`
+          `${violationType}: ${temperature}°C (Норма: ${min_temp}...${max_temp})`,
+          newAlert.id,
         );
       } else {
         console.warn(
-          "⚠️ Alert created, but NO recipients found! (No assigned worker & no manager)"
+          "⚠️ Alert created, but NO recipients found! (No assigned worker & no manager)",
         );
       }
     } else {
       console.log(
-        `⚠️ Alert continues for ${sensor.name}. Current: ${temperature}°C`
+        `⚠️ Alert continues for ${sensor.name}. Current: ${temperature}°C`,
       );
     }
   }
@@ -121,7 +122,7 @@ export const processReading = async (
   // Якщо різниця між Температурою і Точкою Роси менше 2 градусів -> Ризик!
   if (dewPoint !== undefined && temperature - dewPoint < 2.0) {
     console.warn(
-      `💧 [WARNING] Condensation Risk at ${sensor.name}! T:${temperature}, DP:${dewPoint}`
+      `💧 [WARNING] Condensation Risk at ${sensor.name}! T:${temperature}, DP:${dewPoint}`,
     );
   }
 };

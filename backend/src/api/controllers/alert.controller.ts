@@ -5,7 +5,7 @@ import * as alertService from "../services/alert.service.js";
 export const getAll = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const storeId = req.user!.store_id;
@@ -18,11 +18,33 @@ export const getAll = async (
   }
 };
 
+// GET /api/alerts/:id
+export const getById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const storeId = req.user!.store_id;
+    const alertId = req.params.id!;
+
+    const alert = await alertService.getAlertById(alertId, storeId);
+
+    if (!alert) {
+      return res.status(404).json({ message: "Тривогу не знайдено" });
+    }
+
+    res.status(200).json(alert);
+  } catch (error) {
+    next(error);
+  }
+};
+
 // PATCH /api/alerts/:id/acknowledge
 export const acknowledge = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const alertId = req.params.id!;
@@ -40,7 +62,7 @@ export const acknowledge = async (
 export const resolve = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const alertId = req.params.id!;
