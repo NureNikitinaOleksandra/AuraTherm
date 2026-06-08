@@ -36,7 +36,7 @@
     "clean": "rimraf dist",
     "dev": "npx nodemon",
     "build": "npm run clean && npx prisma generate && tsc",
-    "start": "npx prisma migrate deploy && node dist/server.js"
+    "start": "node dist/server.js"
   },
   "keywords": [],
   "author": "",

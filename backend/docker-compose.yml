@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: auratherm
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build: .
+    environment:
+      DATABASE_URL: "postgresql://postgres:mysecretpassword@db:5432/auratherm?schema=public"
+      JWT_SECRET: "0fc78a41610a6d4b4db6e58ec2df2908eb61cfa9cca31574da15ff81e36be1aa"
+      SUPER_ADMIN_API_KEY: "acdf361fd55bc672a6a75a44fc6a36dcc2fec398b85f4ace3f384205935f42fa"
+      PORT: 3000
+    depends_on:
+      - db
+
+  load_balancer:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
