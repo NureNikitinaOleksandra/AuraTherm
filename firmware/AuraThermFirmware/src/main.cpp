@@ -13,12 +13,12 @@ const char* MQTT_SERVER = "broker.hivemq.com";
 const int MQTT_PORT = 1883;
 
 // РЕАЛЬНІ ДАНІ З БД
-const char* SENSOR_ID = "ff5025d2-24bb-4cce-a5ee-15306e08aa6e";
+const char* SENSOR_ID = "ba931db0-8d2f-48db-9b0a-26c2fe2fa520";
 const char* MQTT_TOPIC = "auratherm/9a038ea4-099f-4ce8-9a51-0417907dd9be/readings";
 
 // ЛІМІТИ ЗОНИ (Для візуалізації на екрані)
-const float MIN_TEMP = -22.0;
-const float MAX_TEMP = -17.0;
+const float MIN_TEMP = 4;
+const float MAX_TEMP = 8;
 
 // --- ОБЛАДНАННЯ ---
 #define DHTPIN 15

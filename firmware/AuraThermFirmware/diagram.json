@@ -15,7 +15,7 @@
       "id": "dht1",
       "top": -80,
       "left": 100,
-      "attrs": { "temperature": "24.0", "humidity": "50.0" }
+      "attrs": { "temperature": "4.0", "humidity": "50.0" }
     },
     {
       "type": "wokwi-lcd1602",
